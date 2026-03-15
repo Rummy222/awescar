@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Trophy cup -->
+  <path d="M35 15 h30 v25 c0 15 -10 25 -15 28 v7 h8 v8 H32 v-8 h8 v-7 c-5 -3 -15 -13 -15 -28 V15z" fill="#c9a84c"/>
+  <!-- Trophy shine -->
+  <path d="M40 18 h8 v20 c0 8 -3 14 -6 17" fill="none" stroke="#f0d060" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Left handle -->
+  <path d="M35 22 h-8 c-8 0 -10 12 -2 15 l10 3" fill="none" stroke="#c9a84c" stroke-width="5" stroke-linecap="round"/>
+  <!-- Right handle -->
+  <path d="M65 22 h8 c8 0 10 12 2 15 l-10 3" fill="none" stroke="#c9a84c" stroke-width="5" stroke-linecap="round"/>
+</svg>

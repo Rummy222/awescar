@@ -1,6 +1,6 @@
 """Seed the database with 98th Academy Awards nominees (2026 ceremony)."""
 from app import app
-from models import db, Category, Nominee, Setting
+from models import db, Category, Nominee, Prediction, Setting
 
 CATEGORIES = [
     {
@@ -177,31 +177,43 @@ CATEGORIES = [
 
 
 def seed():
+    """Upsert categories and nominees — existing IDs are preserved so predictions persist."""
     with app.app_context():
         db.create_all()
-        if Category.query.count() > 0:
-            print("Database already seeded. Use --force to re-seed.")
-            return
 
         for cat_data in CATEGORIES:
-            cat = Category(name=cat_data["name"], display_order=cat_data["order"])
-            db.session.add(cat)
+            # Find or create category by name (preserves ID)
+            cat = Category.query.filter_by(name=cat_data["name"]).first()
+            if not cat:
+                cat = Category(name=cat_data["name"])
+                db.session.add(cat)
+            cat.display_order = cat_data["order"]
             db.session.flush()
+
+            # Build lookup of existing nominees for this category
+            existing = {n.name: n for n in cat.nominees}
+            seed_names = {name for name, _ in cat_data["nominees"]}
+
+            # Update or create nominees
             for name, detail in cat_data["nominees"]:
-                db.session.add(Nominee(category_id=cat.id, name=name, detail=detail))
+                if name in existing:
+                    existing[name].detail = detail  # update detail in case it changed
+                else:
+                    db.session.add(Nominee(category_id=cat.id, name=name, detail=detail))
+
+            # Remove nominees no longer in the list, only if no predictions reference them
+            for name, nominee in existing.items():
+                if name not in seed_names:
+                    has_predictions = Prediction.query.filter_by(nominee_id=nominee.id).first()
+                    if not has_predictions:
+                        db.session.delete(nominee)
 
         if not db.session.get(Setting, "predictions_locked"):
             db.session.add(Setting(key="predictions_locked", value="false"))
 
         db.session.commit()
-        print(f"Seeded {len(CATEGORIES)} categories with nominees.")
+        print(f"Seeded/updated {len(CATEGORIES)} categories.")
 
 
 if __name__ == "__main__":
-    import sys
-    if "--force" in sys.argv:
-        with app.app_context():
-            Nominee.query.delete()
-            Category.query.delete()
-            db.session.commit()
     seed()

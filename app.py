@@ -215,10 +215,13 @@ def admin():
         elif action == "clear_winner":
             category_id = int(request.form.get("category_id"))
             next_cat = request.form.get("next_cat", "")
+            view = request.form.get("view", "")
             Nominee.query.filter_by(category_id=category_id).update({"is_winner": False})
             db.session.commit()
-            dest = url_for("admin") + (f"?cat={next_cat}" if next_cat else "")
-            return redirect(dest)
+            params = f"?cat={next_cat}" if next_cat else ""
+            if view:
+                params += ("&" if params else "?") + f"view={view}"
+            return redirect(url_for("admin") + params)
 
         elif action == "toggle_lock":
             s = db.session.get(Setting, "predictions_locked")

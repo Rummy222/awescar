@@ -186,6 +186,7 @@
           <input type="hidden" name="action" value="clear_winner">
           <input type="hidden" name="category_id" value="{{ cat.id }}">
           <input type="hidden" name="next_cat" value="{{ cat.id }}">
+          <input type="hidden" name="view" value="full">
           <button type="submit" class="btn btn-sm btn-outline-danger">Clear</button>
         </form>
         {% endif %}
@@ -199,12 +200,16 @@
 
 {% block scripts %}
 <script>
-  let liveMode = true;
+  let liveMode = new URLSearchParams(window.location.search).get('view') !== 'full';
   function toggleView() {
     liveMode = !liveMode;
     document.getElementById('live-mode').style.display = liveMode ? '' : 'none';
     document.getElementById('full-list').style.display = liveMode ? 'none' : '';
     document.getElementById('view-toggle-label').textContent = liveMode ? 'Full List' : 'Live Mode';
   }
+  // Apply initial state
+  document.getElementById('live-mode').style.display = liveMode ? '' : 'none';
+  document.getElementById('full-list').style.display = liveMode ? 'none' : '';
+  document.getElementById('view-toggle-label').textContent = liveMode ? 'Full List' : 'Live Mode';
 </script>
 {% endblock %}

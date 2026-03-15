@@ -20,6 +20,13 @@ with app.app_context():
     db.create_all()
 
 
+@app.before_request
+def redirect_to_https():
+    # Heroku sets X-Forwarded-Proto; redirect HTTP to HTTPS in production
+    if request.headers.get("X-Forwarded-Proto") == "http":
+        return redirect(request.url.replace("http://", "https://", 1), code=301)
+
+
 # ── helpers ──────────────────────────────────────────────────────────────────
 
 def current_user():

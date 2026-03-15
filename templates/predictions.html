@@ -31,7 +31,7 @@
       <div class="row g-1">
       {% for nominee in cat.nominees %}
       {% set checked = user_preds.get(cat.id) == nominee.id %}
-      <div class="col-12 col-md-4">
+      <div class="col-12 col-md-3">
         <div class="form-check nominee-row
             {% if nominee.is_winner %}nominee-winner{% endif %}
             {% if checked and winner %}{% if nominee.is_winner %}nominee-correct{% else %}nominee-wrong{% endif %}{% endif %}

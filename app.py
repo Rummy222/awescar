@@ -229,6 +229,15 @@ def admin():
             db.session.commit()
             flash(f"Predictions {'locked' if s.value == 'true' else 'unlocked'}.", "info")
 
+        elif action == "delete_user":
+            user_id = int(request.form.get("user_id"))
+            user = db.session.get(User, user_id)
+            if user and not user.is_admin:
+                Prediction.query.filter_by(user_id=user.id).delete()
+                db.session.delete(user)
+                db.session.commit()
+                flash(f"Deleted player: {user.username}", "info")
+
         elif action == "admin_logout":
             session.pop("is_admin", None)
             flash("Admin session ended.", "info")
@@ -256,9 +265,10 @@ def admin():
     next_unpicked = unpicked[0] if unpicked else None
 
     revealed = sum(1 for c in categories if c.winner)
+    players = User.query.filter_by(is_admin=False).order_by(User.username).all()
     return render_template("admin.html", categories=categories, locked=locked,
                            active_cat=active_cat, next_unpicked=next_unpicked,
-                           revealed=revealed)
+                           revealed=revealed, players=players)
 
 
 if __name__ == "__main__":

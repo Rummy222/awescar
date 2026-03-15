@@ -4,9 +4,14 @@ from models import db, User, Category, Nominee, Prediction, Setting
 
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "oscars2025")
 
+# Heroku provides DATABASE_URL with postgres:// scheme; SQLAlchemy requires postgresql://
+_db_url = os.environ.get("DATABASE_URL", "sqlite:///awescar.db")
+if _db_url.startswith("postgres://"):
+    _db_url = _db_url.replace("postgres://", "postgresql://", 1)
+
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "change-me-in-production")
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///awescar.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = _db_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)

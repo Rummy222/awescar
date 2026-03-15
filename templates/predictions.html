@@ -74,6 +74,27 @@
 </form>
 {% endblock %}
 
+<!-- Incomplete picks modal -->
+{% if picked < total and not locked %}
+<div class="modal fade" id="incompleteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-gold">
+      <div class="modal-header">
+        <h5 class="modal-title gold-text">⚠ Incomplete Picks</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        Reminder — you have only picked <strong>{{ picked }} of {{ total }}</strong> categories.
+        You still have <strong>{{ total - picked }}</strong> unpicked!
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-gold" data-bs-dismiss="modal">Got it, I'll finish my picks</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
 {% block scripts %}
 <script>
   // Track unsaved changes
@@ -87,5 +108,11 @@
   document.getElementById('predictions-form')?.addEventListener('submit', () => {
     dirty = false;
   });
+
+  // Show incomplete picks reminder on page load
+  const incompleteModal = document.getElementById('incompleteModal');
+  if (incompleteModal) {
+    new bootstrap.Modal(incompleteModal).show();
+  }
 </script>
 {% endblock %}

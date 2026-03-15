@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Admin Login — Awescar{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+  <div class="col-sm-8 col-md-4">
+    <div class="card border-gold p-4">
+      <h4 class="gold-text text-center mb-4">⚙ Admin Access</h4>
+      <form method="POST" action="{{ url_for('admin') }}">
+        <input type="hidden" name="action" value="login">
+        <div class="mb-3">
+          <label for="password" class="form-label">Admin Password</label>
+          <input type="password" class="form-control" id="password" name="password"
+                 required autofocus>
+        </div>
+        <button type="submit" class="btn btn-gold w-100">Enter Admin Panel</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

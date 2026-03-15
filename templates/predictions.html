@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}My Predictions — Awescar{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="gold-text mb-0">My Predictions</h2>
+  <span class="badge bg-secondary fs-6">{{ picked }} / {{ total }} picked</span>
+</div>
+
+{% if locked %}
+<div class="alert alert-warning">
+  <strong>🔒 Predictions are locked.</strong> The pool has closed — no changes allowed.
+</div>
+{% endif %}
+
+<form method="POST" action="{{ url_for('predictions') }}" id="predictions-form">
+  {% for cat in categories %}
+  {% set winner = cat.winner %}
+  <div class="card mb-3 {% if winner %}card-revealed{% endif %}">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span class="fw-semibold">{{ cat.name }}</span>
+      {% if winner %}
+        <span class="badge bg-gold text-dark">🏆 {{ winner.name }}</span>
+      {% elif user_preds.get(cat.id) %}
+        <span class="badge bg-primary">picked</span>
+      {% else %}
+        <span class="badge bg-danger">unpicked</span>
+      {% endif %}
+    </div>
+    <div class="card-body py-2">
+      {% for nominee in cat.nominees %}
+      {% set checked = user_preds.get(cat.id) == nominee.id %}
+      <div class="form-check nominee-row
+          {% if nominee.is_winner %}nominee-winner{% endif %}
+          {% if checked and winner %}{% if nominee.is_winner %}nominee-correct{% else %}nominee-wrong{% endif %}{% endif %}
+          py-1 px-2 rounded mb-1">
+        <input class="form-check-input" type="radio"
+               name="cat_{{ cat.id }}" id="n{{ nominee.id }}"
+               value="{{ nominee.id }}"
+               {% if checked %}checked{% endif %}
+               {% if locked or winner %}disabled{% endif %}>
+        <label class="form-check-label w-100" for="n{{ nominee.id }}">
+          {% if nominee.is_winner %}🏆 {% endif %}
+          <strong>{{ nominee.name }}</strong>
+          {% if nominee.detail %}
+            <small class="text-muted"> — {{ nominee.detail }}</small>
+          {% endif %}
+          {% if checked and winner %}
+            {% if nominee.is_winner %}
+              <span class="float-end text-success fw-bold">✓ Correct!</span>
+            {% else %}
+              <span class="float-end text-danger">✗ Wrong</span>
+            {% endif %}
+          {% endif %}
+        </label>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+
+  {% if not locked %}
+  <div class="sticky-bottom-bar text-center py-3">
+    <button type="submit" class="btn btn-gold btn-lg px-5">
+      💾 Save All Predictions
+    </button>
+    <p class="text-muted small mt-1 mb-0">You can change your picks any time before they're locked.</p>
+  </div>
+  {% endif %}
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Track unsaved changes
+  let dirty = false;
+  document.querySelectorAll('input[type=radio]').forEach(r => {
+    r.addEventListener('change', () => { dirty = true; });
+  });
+  window.addEventListener('beforeunload', e => {
+    if (dirty) { e.preventDefault(); e.returnValue = ''; }
+  });
+  document.getElementById('predictions-form')?.addEventListener('submit', () => {
+    dirty = false;
+  });
+</script>
+{% endblock %}

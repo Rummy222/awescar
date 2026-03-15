@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Admin Panel — Awescar{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="gold-text mb-0">⚙ Admin Panel</h2>
+  <div class="d-flex gap-2">
+    <!-- Lock/Unlock button -->
+    <form method="POST" action="{{ url_for('admin') }}" class="d-inline">
+      <input type="hidden" name="action" value="toggle_lock">
+      {% if locked %}
+        <button type="submit" class="btn btn-success btn-sm">🔓 Unlock Predictions</button>
+      {% else %}
+        <button type="submit" class="btn btn-warning btn-sm">🔒 Lock Predictions</button>
+      {% endif %}
+    </form>
+    <!-- End admin session -->
+    <form method="POST" action="{{ url_for('admin') }}" class="d-inline">
+      <input type="hidden" name="action" value="admin_logout">
+      <button type="submit" class="btn btn-outline-secondary btn-sm">End Admin Session</button>
+    </form>
+  </div>
+</div>
+
+<div class="alert {% if locked %}alert-warning{% else %}alert-success{% endif %}">
+  Predictions are currently <strong>{% if locked %}LOCKED 🔒{% else %}OPEN 🔓{% endif %}</strong>.
+</div>
+
+<p class="text-muted">Select a winner for each category. Winners are revealed to all players immediately.</p>
+
+{% for cat in categories %}
+{% set winner = cat.winner %}
+<div class="card mb-3 {% if winner %}card-revealed{% endif %}">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span class="fw-semibold">{{ cat.name }}</span>
+    {% if winner %}
+      <span class="badge bg-gold text-dark">🏆 {{ winner.name }}</span>
+    {% else %}
+      <span class="badge bg-secondary">No winner set</span>
+    {% endif %}
+  </div>
+  <div class="card-body py-2">
+    <div class="row g-2 align-items-center">
+      {% for nominee in cat.nominees %}
+      <div class="col-auto">
+        <form method="POST" action="{{ url_for('admin') }}" class="d-inline">
+          <input type="hidden" name="action" value="set_winner">
+          <input type="hidden" name="nominee_id" value="{{ nominee.id }}">
+          <button type="submit"
+            class="btn btn-sm {% if nominee.is_winner %}btn-gold{% else %}btn-outline-secondary{% endif %}">
+            {% if nominee.is_winner %}🏆 {% endif %}{{ nominee.name }}
+            {% if nominee.detail %}<small class="opacity-75"> ({{ nominee.detail }})</small>{% endif %}
+          </button>
+        </form>
+      </div>
+      {% endfor %}
+      {% if winner %}
+      <div class="col-auto ms-auto">
+        <form method="POST" action="{{ url_for('admin') }}" class="d-inline">
+          <input type="hidden" name="action" value="clear_winner">
+          <input type="hidden" name="category_id" value="{{ cat.id }}">
+          <button type="submit" class="btn btn-sm btn-outline-danger">Clear</button>
+        </form>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% endblock %}

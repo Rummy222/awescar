@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Leaderboard — Awescar{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="gold-text mb-0">Leaderboard</h2>
+  <span class="badge bg-secondary fs-6">{{ revealed }} / {{ total }} winners revealed</span>
+</div>
+
+{% if revealed == 0 %}
+<div class="alert alert-info">
+  No winners have been revealed yet. Scores will appear here once the ceremony begins.
+</div>
+{% endif %}
+
+{% if board %}
+<div class="table-responsive">
+  <table class="table table-hover align-middle">
+    <thead>
+      <tr>
+        <th class="text-center" style="width:4rem">Rank</th>
+        <th>Player</th>
+        <th class="text-center">Score</th>
+        <th class="text-center d-none d-sm-table-cell">Picks Made</th>
+        <th class="text-center d-none d-md-table-cell">Accuracy</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for entry in board %}
+      <tr class="{% if entry.user.id == current_user_id %}table-active highlight-row{% endif %}">
+        <td class="text-center fw-bold">
+          {% if entry.rank == 1 %}🥇
+          {% elif entry.rank == 2 %}🥈
+          {% elif entry.rank == 3 %}🥉
+          {% else %}{{ entry.rank }}
+          {% endif %}
+        </td>
+        <td>
+          {{ entry.user.username }}
+          {% if entry.user.id == current_user_id %}
+            <span class="badge bg-secondary ms-1">you</span>
+          {% endif %}
+        </td>
+        <td class="text-center">
+          <span class="fs-5 fw-bold {% if entry.correct > 0 %}gold-text{% endif %}">
+            {{ entry.correct }}
+          </span>
+          <small class="text-muted"> / {{ revealed }}</small>
+        </td>
+        <td class="text-center d-none d-sm-table-cell">
+          {{ entry.picked }} / {{ total }}
+        </td>
+        <td class="text-center d-none d-md-table-cell">
+          {% if revealed > 0 %}
+            <div class="progress" style="height:8px; min-width:80px">
+              <div class="progress-bar bg-gold" style="width:{{ entry.accuracy }}%"></div>
+            </div>
+            <small class="text-muted">{{ entry.accuracy }}%</small>
+          {% else %}
+            <span class="text-muted">—</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="text-muted">No players yet. <a href="{{ url_for('login') }}">Be the first to join!</a></p>
+{% endif %}
+{% endblock %}

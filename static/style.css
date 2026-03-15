@@ -1,0 +1,185 @@
+:root {
+  --oscar-gold: #c9a84c;
+  --oscar-gold-light: #f0d060;
+  --oscar-dark: #111318;
+  --oscar-card: #1e2028;
+}
+
+body {
+  background-color: var(--oscar-dark);
+  color: #ddd;
+  min-height: 100vh;
+}
+
+/* ── Navbar ── */
+.gold-nav {
+  background-color: #0a0b0e !important;
+  border-bottom: 2px solid var(--oscar-gold);
+}
+
+.gold-brand {
+  color: var(--oscar-gold) !important;
+  font-weight: 700;
+  font-size: 1.4rem;
+  letter-spacing: 0.02em;
+}
+
+/* ── Gold utility ── */
+.gold-text {
+  color: var(--oscar-gold);
+}
+
+.btn-gold {
+  background-color: var(--oscar-gold);
+  color: #000;
+  font-weight: 600;
+  border: none;
+}
+
+.btn-gold:hover {
+  background-color: var(--oscar-gold-light);
+  color: #000;
+}
+
+.bg-gold {
+  background-color: var(--oscar-gold) !important;
+}
+
+.border-gold {
+  border-color: var(--oscar-gold) !important;
+}
+
+/* ── Cards ── */
+.card {
+  background-color: var(--oscar-card);
+  border-color: #2e3040;
+}
+
+.card-header {
+  background-color: #181a22;
+  border-bottom-color: #2e3040;
+}
+
+.card-revealed {
+  border-color: var(--oscar-gold) !important;
+}
+
+.card-revealed .card-header {
+  background-color: #1e1a0a;
+  border-bottom-color: var(--oscar-gold);
+}
+
+/* ── Nominees ── */
+.nominee-row {
+  transition: background 0.15s;
+}
+
+.nominee-winner {
+  background-color: rgba(201, 168, 76, 0.15);
+  font-weight: 600;
+}
+
+.nominee-correct {
+  background-color: rgba(40, 167, 69, 0.2) !important;
+}
+
+.nominee-wrong {
+  background-color: rgba(220, 53, 69, 0.1) !important;
+  opacity: 0.7;
+}
+
+.nominee-picked {
+  background-color: rgba(13, 110, 253, 0.15);
+}
+
+/* ── Hero ── */
+.hero-banner {
+  background: linear-gradient(135deg, #111318 0%, #1e1a0a 100%);
+  border-radius: 1rem;
+  border: 1px solid #2e3040;
+}
+
+.stat-box {
+  text-align: center;
+  padding: 0.5rem 1.5rem;
+  border: 1px solid #2e3040;
+  border-radius: 0.5rem;
+  background-color: rgba(255,255,255,0.03);
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--oscar-gold);
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: 0.25rem;
+}
+
+/* ── Leaderboard ── */
+.highlight-row td {
+  background-color: rgba(201, 168, 76, 0.08) !important;
+}
+
+.progress-bar.bg-gold {
+  background-color: var(--oscar-gold) !important;
+}
+
+/* ── Sticky save bar ── */
+.sticky-bottom-bar {
+  position: sticky;
+  bottom: 0;
+  background: linear-gradient(to top, var(--oscar-dark) 80%, transparent);
+  z-index: 10;
+  padding-top: 2rem;
+}
+
+/* ── List group ── */
+.list-group-item {
+  background-color: var(--oscar-card);
+  border-color: #2e3040;
+  color: #ddd;
+}
+
+/* ── Form checks in predictions ── */
+.form-check-input:checked {
+  background-color: var(--oscar-gold);
+  border-color: var(--oscar-gold);
+}
+
+/* ── Table ── */
+.table {
+  --bs-table-bg: var(--oscar-card);
+  --bs-table-hover-bg: rgba(201, 168, 76, 0.05);
+  --bs-table-color: #ddd;
+  --bs-table-border-color: #2e3040;
+}
+
+/* ── Alerts ── */
+.alert-info {
+  background-color: rgba(13, 202, 240, 0.1);
+  border-color: rgba(13, 202, 240, 0.3);
+  color: #7dd9ec;
+}
+
+.alert-warning {
+  background-color: rgba(255, 193, 7, 0.1);
+  border-color: rgba(255, 193, 7, 0.3);
+  color: #ffc107;
+}
+
+.alert-success {
+  background-color: rgba(25, 135, 84, 0.15);
+  border-color: rgba(25, 135, 84, 0.3);
+  color: #75c99b;
+}
+
+.alert-danger {
+  background-color: rgba(220, 53, 69, 0.15);
+  border-color: rgba(220, 53, 69, 0.3);
+  color: #ea868f;
+}

@@ -21,10 +21,13 @@ with app.app_context():
 
 
 @app.before_request
-def redirect_to_https():
-    # Heroku sets X-Forwarded-Proto; redirect HTTP to HTTPS in production
+def redirect_to_https_and_apex():
+    # Redirect HTTP → HTTPS
     if request.headers.get("X-Forwarded-Proto") == "http":
         return redirect(request.url.replace("http://", "https://", 1), code=301)
+    # Redirect www → apex domain
+    if request.host.startswith("www."):
+        return redirect("https://awescar.org" + request.full_path.rstrip("?"), code=301)
 
 
 # ── helpers ──────────────────────────────────────────────────────────────────

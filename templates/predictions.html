@@ -74,7 +74,7 @@
 </form>
 
 <!-- Incomplete picks modal -->
-{% if picked < total and not locked %}
+{% if picked > 0 and picked < total and not locked %}
 <div class="modal fade" id="incompleteModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-gold">

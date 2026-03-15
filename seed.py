@@ -4,8 +4,41 @@ from models import db, Category, Nominee, Prediction, Setting
 
 CATEGORIES = [
     {
-        "name": "Best Documentary Feature Film",
+        "name": "Best Animated Short Film",
         "order": 1,
+        "nominees": [
+            ("Butterfly", "Florence Miailhe & Ron Dyens"),
+            ("Forevergreen", "Nathan Engelhardt & Jeremy Spears"),
+            ("The Girl Who Cried Pearls", "Chris Lavis & Maciek Szczerbowski"),
+            ("Retirement Plan", "John Kelly & Andrew Freedman"),
+            ("The Three Sisters", "Konstantin Bronzit"),
+        ],
+    },
+    {
+        "name": "Best Live Action Short Film",
+        "order": 2,
+        "nominees": [
+            ("Butcher's Stain", "Meyer Levinson-Blount & Oron Caspi"),
+            ("A Friend of Dorothy", "Lee Knight & James Dean"),
+            ("Jane Austen's Period Drama", "Julia Aks & Steve Pinder"),
+            ("The Singers", "Sam A. Davis & Jack Piatt"),
+            ("Two People Exchanging Saliva", "Alexandre Singh & Natalie Musteata"),
+        ],
+    },
+    {
+        "name": "Best Documentary Short Film",
+        "order": 3,
+        "nominees": [
+            ("All the Empty Rooms", "Joshua Seftel & Conall Jones"),
+            ("Armed Only with a Camera", "Craig Renaud & Juan Arredondo"),
+            ("Children No More: \"Were and Are Gone\"", "Hilla Medalia & Sheila Nevins"),
+            ("The Devil Is Busy", "Christalyn Hampton & Geeta Gandbhir"),
+            ("Perfectly a Strangeness", "Alison McAlpine"),
+        ],
+    },
+    {
+        "name": "Best Documentary Feature Film",
+        "order": 4,
         "nominees": [
             ("The Alabama Solution", ""),
             ("Come See Me in the Good Light", ""),
@@ -16,7 +49,7 @@ CATEGORIES = [
     },
     {
         "name": "Best International Feature Film",
-        "order": 2,
+        "order": 5,
         "nominees": [
             ("The Secret Agent", "Brazil"),
             ("It Was Just an Accident", "France"),
@@ -27,7 +60,7 @@ CATEGORIES = [
     },
     {
         "name": "Best Animated Feature Film",
-        "order": 3,
+        "order": 6,
         "nominees": [
             ("Arco", "Ugo Bienvenu, Félix de Givry & Natalie Portman"),
             ("Elio", "Madeline Sharafian & Domee Shi"),
@@ -38,7 +71,7 @@ CATEGORIES = [
     },
     {
         "name": "Best Original Score",
-        "order": 4,
+        "order": 7,
         "nominees": [
             ("Bugonia", "Jerskin Fendrix"),
             ("Frankenstein", "Alexandre Desplat"),
@@ -49,7 +82,7 @@ CATEGORIES = [
     },
     {
         "name": "Best Original Song",
-        "order": 5,
+        "order": 8,
         "nominees": [
             ("Dear Me", "Diane Warren: Relentless"),
             ("Golden", "KPop Demon Hunters"),
@@ -59,8 +92,63 @@ CATEGORIES = [
         ],
     },
     {
+        "name": "Best Sound",
+        "order": 9,
+        "nominees": [
+            ("F1", "Gareth John, Al Nelson & Gwendolyn Yates Whittle"),
+            ("Frankenstein", "Greg Chapman, Nathan Robitaille & Nelson Ferreira"),
+            ("One Battle after Another", "José Antonio García & Christopher Scarabosio"),
+            ("Sinners", "Chris Welcker, Benjamin A. Burtt & Felipe Pacheco"),
+            ("Sirāt", "Amanda Villavieja, Laia Casanovas & Yasmina Praderas"),
+        ],
+    },
+    {
+        "name": "Best Visual Effects",
+        "order": 10,
+        "nominees": [
+            ("Avatar: Fire and Ash", "Joe Letteri, Richard Baneham & Eric Saindon"),
+            ("F1", "Ryan Tudhope, Nicolas Chevallier & Robert Harrington"),
+            ("Jurassic World Rebirth", "David Vickery, Stephen Aplin & Charmaine Chan"),
+            ("The Lost Bus", "Charlie Noble, David Zaretti & Russell Bowen"),
+            ("Sinners", "Michael Ralla, Espen Nordahl & Guido Wolter"),
+        ],
+    },
+    {
+        "name": "Best Makeup and Hairstyling",
+        "order": 11,
+        "nominees": [
+            ("Frankenstein", "Mike Hill, Jordan Samuel & Cliona Furey"),
+            ("Kokuho", "Kyoko Toyokawa, Naomi Hibino & Tadashi Nishimatsu"),
+            ("Sinners", "Ken Diaz, Mike Fontaine & Shunika Terry"),
+            ("The Smashing Machine", "Kazu Hiro, Glen Griffin & Bjoern Rehbein"),
+            ("The Ugly Stepsister", "Thomas Foldberg & Anne Cathrine Sauerberg"),
+        ],
+    },
+    {
+        "name": "Best Costume Design",
+        "order": 12,
+        "nominees": [
+            ("Avatar: Fire and Ash", "Deborah L. Scott"),
+            ("Frankenstein", "Kate Hawley"),
+            ("Hamnet", "Malgosia Turzanska"),
+            ("Marty Supreme", "Miyako Bellizzi"),
+            ("Sinners", "Ruth E. Carter"),
+        ],
+    },
+    {
+        "name": "Best Production Design",
+        "order": 13,
+        "nominees": [
+            ("Frankenstein", "Tamara Deverell & Shane Vieau"),
+            ("Hamnet", "Fiona Crombie & Alice Felton"),
+            ("Marty Supreme", "Jack Fisk & Adam Willis"),
+            ("One Battle after Another", "Florencia Martin & Anthony Carlino"),
+            ("Sinners", "Hannah Beachler & Monique Champagne"),
+        ],
+    },
+    {
         "name": "Best Cinematography",
-        "order": 6,
+        "order": 14,
         "nominees": [
             ("Frankenstein", "Dan Laustsen"),
             ("Marty Supreme", "Darius Khondji"),
@@ -71,7 +159,7 @@ CATEGORIES = [
     },
     {
         "name": "Best Film Editing",
-        "order": 7,
+        "order": 15,
         "nominees": [
             ("F1", "Stephen Mirrione"),
             ("Marty Supreme", "Ronald Bronstein & Josh Safdie"),
@@ -81,8 +169,19 @@ CATEGORIES = [
         ],
     },
     {
+        "name": "Best Casting",
+        "order": 16,
+        "nominees": [
+            ("Hamnet", "Nina Gold"),
+            ("Marty Supreme", "Jennifer Venditti"),
+            ("One Battle after Another", "Cassandra Kulukundis"),
+            ("The Secret Agent", "Gabriel Domingues"),
+            ("Sinners", "Francine Maisler"),
+        ],
+    },
+    {
         "name": "Best Adapted Screenplay",
-        "order": 8,
+        "order": 17,
         "nominees": [
             ("Bugonia", "Will Tracy"),
             ("Frankenstein", "Guillermo del Toro"),
@@ -93,7 +192,7 @@ CATEGORIES = [
     },
     {
         "name": "Best Original Screenplay",
-        "order": 9,
+        "order": 18,
         "nominees": [
             ("Blue Moon", "Robert Kaplow"),
             ("It Was Just an Accident", "Jafar Panahi"),
@@ -104,7 +203,7 @@ CATEGORIES = [
     },
     {
         "name": "Best Supporting Actor",
-        "order": 10,
+        "order": 19,
         "nominees": [
             ("Benicio Del Toro", "One Battle after Another"),
             ("Jacob Elordi", "Frankenstein"),
@@ -115,7 +214,7 @@ CATEGORIES = [
     },
     {
         "name": "Best Supporting Actress",
-        "order": 11,
+        "order": 20,
         "nominees": [
             ("Elle Fanning", "Sentimental Value"),
             ("Inga Ibsdotter Lilleaas", "Sentimental Value"),
@@ -126,7 +225,7 @@ CATEGORIES = [
     },
     {
         "name": "Best Actor",
-        "order": 12,
+        "order": 21,
         "nominees": [
             ("Timothée Chalamet", "Marty Supreme"),
             ("Leonardo DiCaprio", "One Battle after Another"),
@@ -137,7 +236,7 @@ CATEGORIES = [
     },
     {
         "name": "Best Actress",
-        "order": 13,
+        "order": 22,
         "nominees": [
             ("Jessie Buckley", "Hamnet"),
             ("Rose Byrne", "If I Had Legs I'd Kick You"),
@@ -148,7 +247,7 @@ CATEGORIES = [
     },
     {
         "name": "Best Director",
-        "order": 14,
+        "order": 23,
         "nominees": [
             ("Chloé Zhao", "Hamnet"),
             ("Josh Safdie", "Marty Supreme"),
@@ -159,7 +258,7 @@ CATEGORIES = [
     },
     {
         "name": "Best Picture",
-        "order": 15,
+        "order": 24,
         "nominees": [
             ("Bugonia", ""),
             ("F1", ""),

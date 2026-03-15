@@ -28,33 +28,37 @@
       {% endif %}
     </div>
     <div class="card-body py-2">
+      <div class="row g-1">
       {% for nominee in cat.nominees %}
       {% set checked = user_preds.get(cat.id) == nominee.id %}
-      <div class="form-check nominee-row
-          {% if nominee.is_winner %}nominee-winner{% endif %}
-          {% if checked and winner %}{% if nominee.is_winner %}nominee-correct{% else %}nominee-wrong{% endif %}{% endif %}
-          py-1 px-2 rounded mb-1">
-        <input class="form-check-input" type="radio"
-               name="cat_{{ cat.id }}" id="n{{ nominee.id }}"
-               value="{{ nominee.id }}"
-               {% if checked %}checked{% endif %}
-               {% if locked or winner %}disabled{% endif %}>
-        <label class="form-check-label w-100" for="n{{ nominee.id }}">
-          {% if nominee.is_winner %}🏆 {% endif %}
-          <strong>{{ nominee.name }}</strong>
-          {% if nominee.detail %}
-            <small class="text-muted"> — {{ nominee.detail }}</small>
-          {% endif %}
-          {% if checked and winner %}
-            {% if nominee.is_winner %}
-              <span class="float-end text-success fw-bold">✓ Correct!</span>
-            {% else %}
-              <span class="float-end text-danger">✗ Wrong</span>
+      <div class="col-12 col-md-6">
+        <div class="form-check nominee-row
+            {% if nominee.is_winner %}nominee-winner{% endif %}
+            {% if checked and winner %}{% if nominee.is_winner %}nominee-correct{% else %}nominee-wrong{% endif %}{% endif %}
+            py-1 px-2 rounded h-100">
+          <input class="form-check-input" type="radio"
+                 name="cat_{{ cat.id }}" id="n{{ nominee.id }}"
+                 value="{{ nominee.id }}"
+                 {% if checked %}checked{% endif %}
+                 {% if locked or winner %}disabled{% endif %}>
+          <label class="form-check-label w-100" for="n{{ nominee.id }}">
+            {% if nominee.is_winner %}🏆 {% endif %}
+            <strong>{{ nominee.name }}</strong>
+            {% if nominee.detail %}
+              <small class="text-muted d-block">{{ nominee.detail }}</small>
             {% endif %}
-          {% endif %}
-        </label>
+            {% if checked and winner %}
+              {% if nominee.is_winner %}
+                <span class="d-block text-success fw-bold">✓ Correct!</span>
+              {% else %}
+                <span class="d-block text-danger">✗ Wrong</span>
+              {% endif %}
+            {% endif %}
+          </label>
+        </div>
       </div>
       {% endfor %}
+      </div>
     </div>
   </div>
   {% endfor %}

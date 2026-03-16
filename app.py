@@ -183,6 +183,67 @@ def leaderboard():
 
 # ── admin routes ──────────────────────────────────────────────────────────────
 
+@app.route("/summary")
+def summary():
+    if not predictions_locked():
+        flash("Results are only available once predictions are locked.", "warning")
+        return redirect(url_for("index"))
+
+    categories = Category.query.order_by(Category.display_order).all()
+    users = User.query.filter_by(is_admin=False).order_by(User.username).all()
+
+    # For each category, group users by their pick
+    summary_data = []
+    for cat in categories:
+        # Map nominee_id -> list of users who picked it
+        picks = {}
+        for u in users:
+            pred = Prediction.query.filter_by(user_id=u.id, category_id=cat.id).first()
+            if pred:
+                picks.setdefault(pred.nominee_id, []).append(u.username)
+
+        # Build list of (nominee, [usernames]) sorted by nominee name
+        nominee_picks = []
+        for nominee in cat.nominees:
+            if nominee.id in picks:
+                nominee_picks.append((nominee, picks[nominee.id]))
+
+        summary_data.append({
+            "category": cat,
+            "nominee_picks": nominee_picks,
+            "unpicked": [u.username for u in users
+                         if not Prediction.query.filter_by(user_id=u.id,
+                                                           category_id=cat.id).first()],
+        })
+
+    return render_template("summary.html", summary_data=summary_data, users=users)
+
+
+@app.route("/films")
+def films():
+    if not predictions_locked():
+        flash("Results are only available once predictions are locked.", "warning")
+        return redirect(url_for("index"))
+
+    categories = Category.query.order_by(Category.display_order).all()
+
+    # Tally wins per film
+    # Person/song categories have film in detail; others have film in name
+    person_keywords = ("Actor", "Actress", "Director", "Song")
+    film_wins = {}
+    for cat in categories:
+        for winner in cat.winners:
+            film = (winner.detail if any(k in cat.name for k in person_keywords)
+                    else winner.name)
+            if film:
+                film_wins[film] = film_wins.get(film, 0) + 1
+
+    # Sort by wins descending
+    ranked = sorted(film_wins.items(), key=lambda x: -x[1])
+
+    return render_template("films.html", ranked=ranked)
+
+
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
     if request.method == "POST":

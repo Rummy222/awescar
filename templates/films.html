@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Wins by Film — Awescar{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="gold-text mb-0">Wins by Film</h2>
+  <a href="{{ url_for('summary') }}" class="btn btn-sm btn-outline-secondary">← Results Summary</a>
+</div>
+
+{% if ranked %}
+<p class="text-muted">Based on {{ ranked|sum(attribute=1) }} revealed winner{% if ranked|sum(attribute=1) != 1 %}s{% endif %} so far.</p>
+
+<div class="row g-3">
+  {% for film, wins in ranked %}
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="card h-100 {% if wins >= 3 %}border-gold{% endif %}">
+      <div class="card-body d-flex justify-content-between align-items-center">
+        <div>
+          <div class="fw-semibold">{{ film }}</div>
+        </div>
+        <div class="text-center ms-3">
+          <div class="display-6 gold-text fw-bold">{{ wins }}</div>
+          <div class="small text-muted">win{% if wins != 1 %}s{% endif %}</div>
+        </div>
+      </div>
+      {% if wins >= 3 %}
+      <div class="card-footer text-center py-1">
+        <small class="gold-text">
+          {% if wins >= 5 %}🏆🏆🏆 Big night!
+          {% elif wins >= 3 %}🏆 Leading film
+          {% endif %}
+        </small>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="alert alert-info">No winners have been revealed yet.</div>
+{% endif %}
+{% endblock %}

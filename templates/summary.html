@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Results Summary — Awescar{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="gold-text mb-0">Results Summary</h2>
+  <a href="{{ url_for('films') }}" class="btn btn-sm btn-outline-secondary">Wins by Film →</a>
+</div>
+
+<p class="text-muted">Who picked what across all {{ summary_data|length }} categories.</p>
+
+{% for item in summary_data %}
+{% set cat = item.category %}
+{% set winner = cat.winner %}
+<div class="card mb-3 {% if winner %}card-revealed{% endif %}">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span class="fw-semibold">{{ cat.name }}</span>
+    {% if cat.winners %}
+      <span class="badge bg-gold text-dark">
+        🏆 {% for w in cat.winners %}{{ w.name }}{% if not loop.last %}, {% endif %}{% endfor %}
+      </span>
+    {% else %}
+      <span class="badge bg-secondary">Not yet revealed</span>
+    {% endif %}
+  </div>
+  <div class="card-body py-2">
+    {% if item.nominee_picks %}
+    <div class="row g-2">
+      {% for nominee, usernames in item.nominee_picks %}
+      {% set is_winner = nominee.is_winner %}
+      <div class="col-12 col-md-6">
+        <div class="p-2 rounded nominee-row {% if is_winner %}nominee-winner{% endif %}">
+          <div class="fw-semibold mb-1">
+            {% if is_winner %}🏆 {% endif %}{{ nominee.name }}
+            {% if nominee.detail %}<small class="text-muted"> — {{ nominee.detail }}</small>{% endif %}
+          </div>
+          <div class="d-flex flex-wrap gap-1">
+            {% for username in usernames %}
+            <span class="badge {% if is_winner %}bg-success{% else %}bg-secondary{% endif %}">
+              {{ username }}
+            </span>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% if item.unpicked %}
+    <div class="mt-2 small text-muted">
+      No pick: {% for u in item.unpicked %}<span class="badge bg-dark border">{{ u }}</span> {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endfor %}
+{% endblock %}

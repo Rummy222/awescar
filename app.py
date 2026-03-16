@@ -298,10 +298,24 @@ def admin():
             flash("Admin session ended.", "info")
             return redirect(url_for("index"))
 
+        elif action == "sync_wikipedia":
+            from scraper import sync_winners
+            count, log = sync_winners()
+            session["sync_log"] = log
+            if count > 0:
+                flash(f"Synced {count} new winner(s) from Wikipedia.", "success")
+            else:
+                flash("No new winners found on Wikipedia.", "info")
+            return redirect(url_for("admin"))
+
         return redirect(url_for("admin"))
 
     if not is_admin():
         return render_template("admin_login.html")
+
+    if request.args.get("clear_log"):
+        session.pop("sync_log", None)
+        return redirect(url_for("admin"))
 
     categories = Category.query.order_by(Category.display_order).all()
     locked = predictions_locked()

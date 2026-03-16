@@ -7,6 +7,10 @@
   <h2 class="gold-text mb-0">⚙ Admin</h2>
   <div class="d-flex gap-2 flex-wrap">
     <form method="POST" action="{{ url_for('admin') }}" class="d-inline">
+      <input type="hidden" name="action" value="sync_wikipedia">
+      <button type="submit" class="btn btn-info btn-sm">⟳ Sync Wikipedia</button>
+    </form>
+    <form method="POST" action="{{ url_for('admin') }}" class="d-inline">
       <input type="hidden" name="action" value="toggle_lock">
       {% if locked %}
         <button type="submit" class="btn btn-success btn-sm">🔓 Unlock</button>
@@ -32,6 +36,20 @@
          style="width: {{ (revealed / categories|length * 100)|int }}%"></div>
   </div>
 </div>
+
+<!-- Sync log (shown once after a sync) -->
+{% if session.get('sync_log') %}
+<div class="card mb-4 border-secondary">
+  <div class="card-header d-flex justify-content-between align-items-center py-2">
+    <span class="small fw-semibold">Last Wikipedia Sync Log</span>
+    <a href="{{ url_for('admin') }}?clear_log=1" class="small text-muted">dismiss</a>
+  </div>
+  <div class="card-body py-2">
+    <pre class="small mb-0" style="white-space:pre-wrap">{% for line in session['sync_log'] %}{{ line }}
+{% endfor %}</pre>
+  </div>
+</div>
+{% endif %}
 
 <!-- PLAYERS -->
 <div class="card mb-4">

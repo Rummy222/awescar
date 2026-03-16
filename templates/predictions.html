@@ -19,12 +19,14 @@
 <form method="POST" action="{{ url_for('predictions') }}" id="predictions-form">
   {% for cat in categories %}
   {% set winner = cat.winner %}
+  {% set winner_ids = cat.winners | map(attribute='id') | list %}
+  {% set my_pick_id = user_preds.get(cat.id) %}
   <div class="card mb-3 {% if winner %}card-revealed{% endif %}">
     <div class="card-header d-flex justify-content-between align-items-center">
       <span class="fw-semibold">{{ cat.name }}</span>
-      {% if winner %}
-        <span class="badge bg-gold text-dark">🏆 {{ winner.name }}</span>
-      {% elif user_preds.get(cat.id) %}
+      {% if cat.winners %}
+        <span class="badge bg-gold text-dark">🏆 {% for w in cat.winners %}{{ w.name }}{% if not loop.last %}, {% endif %}{% endfor %}</span>
+      {% elif my_pick_id %}
         <span class="badge bg-primary">picked</span>
       {% else %}
         <span class="badge bg-danger">unpicked</span>
@@ -33,11 +35,11 @@
     <div class="card-body py-2">
       <div class="row g-1">
       {% for nominee in cat.nominees %}
-      {% set checked = user_preds.get(cat.id) == nominee.id %}
+      {% set checked = my_pick_id == nominee.id %}
       <div class="col-12 col-md-3">
         <div class="form-check nominee-row
             {% if nominee.is_winner %}nominee-winner{% endif %}
-            {% if checked and winner %}{% if nominee.is_winner %}nominee-correct{% else %}nominee-wrong{% endif %}{% endif %}
+            {% if checked and winner %}{% if nominee.is_winner %}nominee-correct{% elif my_pick_id not in winner_ids %}nominee-wrong{% endif %}{% endif %}
             py-1 px-2 rounded h-100">
           <input class="form-check-input" type="radio"
                  name="cat_{{ cat.id }}" id="n{{ nominee.id }}"

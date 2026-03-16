@@ -56,8 +56,8 @@
         <div class="small text-muted">Category {{ active_cat.display_order }} of {{ categories|length }}</div>
         <div class="fw-bold fs-5">{{ active_cat.name }}</div>
       </div>
-      {% if active_cat.winner %}
-        <span class="badge bg-gold text-dark fs-6">🏆 {{ active_cat.winner.name }}</span>
+      {% if active_cat.winners %}
+        <span class="badge bg-gold text-dark fs-6">🏆 {% for w in active_cat.winners %}{{ w.name }}{% if not loop.last %}, {% endif %}{% endfor %}</span>
       {% else %}
         <span class="badge bg-secondary">Pending</span>
       {% endif %}

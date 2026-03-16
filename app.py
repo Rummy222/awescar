@@ -164,7 +164,7 @@ def leaderboard():
         preds = {p.category_id: p.nominee_id for p in u.predictions}
         correct = sum(
             1 for c in categories
-            if c.winner and preds.get(c.id) == c.winner.id
+            if c.winners and preds.get(c.id) in {w.id for w in c.winners}
         )
         board.append({
             "user": u,
@@ -205,11 +205,12 @@ def admin():
             next_cat = request.form.get("next_cat", "")
             nominee = db.session.get(Nominee, nominee_id)
             if nominee:
-                Nominee.query.filter_by(category_id=nominee.category_id).update(
-                    {"is_winner": False})
-                nominee.is_winner = True
+                nominee.is_winner = not nominee.is_winner  # toggle
                 db.session.commit()
-            dest = url_for("admin") + (f"?cat={next_cat}" if next_cat else "")
+            # Only auto-advance if we just set a winner (not un-set one)
+            advance = nominee and nominee.is_winner
+            dest = url_for("admin") + (f"?cat={next_cat}" if next_cat and advance else
+                                       f"?cat={nominee.category_id}" if nominee else "")
             return redirect(dest)
 
         elif action == "clear_winner":

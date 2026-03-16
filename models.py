@@ -29,7 +29,13 @@ class Category(db.Model):
 
     @property
     def winner(self):
+        """Returns first winner, or None — used for 'has any winner been set?' checks."""
         return next((n for n in self.nominees if n.is_winner), None)
+
+    @property
+    def winners(self):
+        """Returns all winners (supports co-winners / ties)."""
+        return [n for n in self.nominees if n.is_winner]
 
 
 class Nominee(db.Model):

@@ -6,9 +6,6 @@
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
   <h2 class="gold-text mb-0">⚙ Admin</h2>
   <div class="d-flex gap-2 flex-wrap">
-    <button class="btn btn-sm btn-outline-secondary" onclick="toggleView()">
-      <span id="view-toggle-label">Full List</span>
-    </button>
     <form method="POST" action="{{ url_for('admin') }}" class="d-inline">
       <input type="hidden" name="action" value="toggle_lock">
       {% if locked %}
@@ -25,7 +22,7 @@
 </div>
 
 <!-- Progress bar -->
-<div class="mb-3">
+<div class="mb-4">
   <div class="d-flex justify-content-between small text-muted mb-1">
     <span>{{ revealed }} of {{ categories|length }} winners revealed</span>
     {% if revealed == categories|length %}<span class="gold-text">All done! 🏆</span>{% endif %}
@@ -36,101 +33,7 @@
   </div>
 </div>
 
-<!-- Category dots -->
-<div class="cat-dots mb-4">
-  {% for cat in categories %}
-  <a href="{{ url_for('admin') }}?cat={{ cat.id }}"
-     class="cat-dot {% if cat.winner %}dot-done{% endif %} {% if cat.id == active_cat.id %}dot-active{% endif %}"
-     title="{{ cat.name }}{% if cat.winner %} — {{ cat.winner.name }}{% endif %}">
-  </a>
-  {% endfor %}
-</div>
-
-<!-- ═══════════════════════════════════════════════════════ -->
-<!-- LIVE MODE (default)                                     -->
-<!-- ═══════════════════════════════════════════════════════ -->
-<div id="live-mode">
-  <div class="card border-gold">
-    <div class="card-header d-flex justify-content-between align-items-center py-3">
-      <div>
-        <div class="small text-muted">Category {{ active_cat.display_order }} of {{ categories|length }}</div>
-        <div class="fw-bold fs-5">{{ active_cat.name }}</div>
-      </div>
-      {% if active_cat.winners %}
-        <span class="badge bg-gold text-dark fs-6">🏆 {% for w in active_cat.winners %}{{ w.name }}{% if not loop.last %}, {% endif %}{% endfor %}</span>
-      {% else %}
-        <span class="badge bg-secondary">Pending</span>
-      {% endif %}
-    </div>
-
-    <div class="card-body">
-      <!-- Nominee grid -->
-      <div class="row g-2">
-        {% for nominee in active_cat.nominees %}
-        <div class="col-12 col-sm-6">
-          <form method="POST" action="{{ url_for('admin') }}">
-            <input type="hidden" name="action" value="set_winner">
-            <input type="hidden" name="nominee_id" value="{{ nominee.id }}">
-            <input type="hidden" name="next_cat" value="{{ next_unpicked.id if next_unpicked else '' }}">
-            <button type="submit"
-              class="btn w-100 text-start nominee-btn {% if nominee.is_winner %}btn-gold{% else %}btn-outline-secondary{% endif %}">
-              <div class="fw-bold">{% if nominee.is_winner %}🏆 {% endif %}{{ nominee.name }}</div>
-              {% if nominee.detail %}<div class="small opacity-75">{{ nominee.detail }}</div>{% endif %}
-            </button>
-          </form>
-        </div>
-        {% endfor %}
-      </div>
-
-      <!-- Clear + nav -->
-      <div class="d-flex justify-content-between align-items-center mt-4">
-        {% set prev_cat = namespace(val=none) %}
-        {% for cat in categories %}
-          {% if cat.id == active_cat.id and not loop.first %}
-            {% set prev_cat.val = categories[loop.index - 2] %}
-          {% endif %}
-        {% endfor %}
-        {% set next_cat = namespace(val=none) %}
-        {% for cat in categories %}
-          {% if cat.id == active_cat.id and not loop.last %}
-            {% set next_cat.val = categories[loop.index] %}
-          {% endif %}
-        {% endfor %}
-
-        <a href="{{ url_for('admin') }}?cat={{ prev_cat.val.id }}"
-           class="btn btn-outline-secondary {% if not prev_cat.val %}disabled{% endif %}">← Prev</a>
-
-        {% if active_cat.winner %}
-        <form method="POST" action="{{ url_for('admin') }}" class="d-inline">
-          <input type="hidden" name="action" value="clear_winner">
-          <input type="hidden" name="category_id" value="{{ active_cat.id }}">
-          <input type="hidden" name="next_cat" value="{{ active_cat.id }}">
-          <button type="submit" class="btn btn-outline-danger btn-sm">Clear Winner</button>
-        </form>
-        {% else %}
-        <span></span>
-        {% endif %}
-
-        <a href="{{ url_for('admin') }}?cat={{ next_cat.val.id }}"
-           class="btn btn-outline-secondary {% if not next_cat.val %}disabled{% endif %}">Next →</a>
-      </div>
-    </div>
-  </div>
-
-  <!-- Jump to next unpicked -->
-  {% if next_unpicked and active_cat.winner %}
-  <div class="text-center mt-3">
-    <a href="{{ url_for('admin') }}?cat={{ next_unpicked.id }}" class="btn btn-gold">
-      Next unpicked: {{ next_unpicked.name }} →
-    </a>
-  </div>
-  {% endif %}
-</div>
-
-<!-- ═══════════════════════════════════════════════════════ -->
-<!-- ═══════════════════════════════════════════════════════ -->
-<!-- PLAYERS                                                 -->
-<!-- ═══════════════════════════════════════════════════════ -->
+<!-- PLAYERS -->
 <div class="card mb-4">
   <div class="card-header fw-semibold">Players ({{ players|length }})</div>
   <div class="card-body py-2">
@@ -153,63 +56,42 @@
   </div>
 </div>
 
-<!-- FULL LIST (hidden by default)                           -->
-<!-- ═══════════════════════════════════════════════════════ -->
-<div id="full-list" style="display:none">
-  {% for cat in categories %}
-  {% set winner = cat.winner %}
-  <div class="card mb-3 {% if winner %}card-revealed{% endif %}">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <span class="fw-semibold">{{ loop.index }}. {{ cat.name }}</span>
+<!-- FULL LIST -->
+{% for cat in categories %}
+{% set winner = cat.winner %}
+<div class="card mb-3 {% if winner %}card-revealed{% endif %}">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span class="fw-semibold">{{ loop.index }}. {{ cat.name }}</span>
+    {% if cat.winners %}
+      <span class="badge bg-gold text-dark">🏆 {% for w in cat.winners %}{{ w.name }}{% if not loop.last %}, {% endif %}{% endfor %}</span>
+    {% else %}
+      <span class="badge bg-secondary">Pending</span>
+    {% endif %}
+  </div>
+  <div class="card-body py-2">
+    <div class="d-flex flex-wrap gap-2">
+      {% for nominee in cat.nominees %}
+      <form method="POST" action="{{ url_for('admin') }}" class="d-inline">
+        <input type="hidden" name="action" value="set_winner">
+        <input type="hidden" name="nominee_id" value="{{ nominee.id }}">
+        <input type="hidden" name="next_cat" value="{{ cat.id }}">
+        <button type="submit"
+          class="btn btn-sm {% if nominee.is_winner %}btn-gold{% else %}btn-outline-secondary{% endif %}">
+          {% if nominee.is_winner %}🏆 {% endif %}{{ nominee.name }}
+          {% if nominee.detail %}<small class="opacity-75"> ({{ nominee.detail }})</small>{% endif %}
+        </button>
+      </form>
+      {% endfor %}
       {% if winner %}
-        <span class="badge bg-gold text-dark">🏆 {{ winner.name }}</span>
-      {% else %}
-        <span class="badge bg-secondary">Pending</span>
+      <form method="POST" action="{{ url_for('admin') }}" class="d-inline">
+        <input type="hidden" name="action" value="clear_winner">
+        <input type="hidden" name="category_id" value="{{ cat.id }}">
+        <button type="submit" class="btn btn-sm btn-outline-danger">Clear</button>
+      </form>
       {% endif %}
     </div>
-    <div class="card-body py-2">
-      <div class="d-flex flex-wrap gap-2">
-        {% for nominee in cat.nominees %}
-        <form method="POST" action="{{ url_for('admin') }}" class="d-inline">
-          <input type="hidden" name="action" value="set_winner">
-          <input type="hidden" name="nominee_id" value="{{ nominee.id }}">
-          <input type="hidden" name="next_cat" value="{{ cat.id }}">
-          <button type="submit"
-            class="btn btn-sm {% if nominee.is_winner %}btn-gold{% else %}btn-outline-secondary{% endif %}">
-            {% if nominee.is_winner %}🏆 {% endif %}{{ nominee.name }}
-            {% if nominee.detail %}<small class="opacity-75"> ({{ nominee.detail }})</small>{% endif %}
-          </button>
-        </form>
-        {% endfor %}
-        {% if winner %}
-        <form method="POST" action="{{ url_for('admin') }}" class="d-inline">
-          <input type="hidden" name="action" value="clear_winner">
-          <input type="hidden" name="category_id" value="{{ cat.id }}">
-          <input type="hidden" name="next_cat" value="{{ cat.id }}">
-          <input type="hidden" name="view" value="full">
-          <button type="submit" class="btn btn-sm btn-outline-danger">Clear</button>
-        </form>
-        {% endif %}
-      </div>
-    </div>
   </div>
-  {% endfor %}
 </div>
+{% endfor %}
 
-{% endblock %}
-
-{% block scripts %}
-<script>
-  let liveMode = new URLSearchParams(window.location.search).get('view') !== 'full';
-  function toggleView() {
-    liveMode = !liveMode;
-    document.getElementById('live-mode').style.display = liveMode ? '' : 'none';
-    document.getElementById('full-list').style.display = liveMode ? 'none' : '';
-    document.getElementById('view-toggle-label').textContent = liveMode ? 'Full List' : 'Live Mode';
-  }
-  // Apply initial state
-  document.getElementById('live-mode').style.display = liveMode ? '' : 'none';
-  document.getElementById('full-list').style.display = liveMode ? 'none' : '';
-  document.getElementById('view-toggle-label').textContent = liveMode ? 'Full List' : 'Live Mode';
-</script>
 {% endblock %}

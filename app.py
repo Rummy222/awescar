@@ -263,27 +263,17 @@ def admin():
 
         if action == "set_winner":
             nominee_id = int(request.form.get("nominee_id"))
-            next_cat = request.form.get("next_cat", "")
             nominee = db.session.get(Nominee, nominee_id)
             if nominee:
                 nominee.is_winner = not nominee.is_winner  # toggle
                 db.session.commit()
-            # Only auto-advance if we just set a winner (not un-set one)
-            advance = nominee and nominee.is_winner
-            dest = url_for("admin") + (f"?cat={next_cat}" if next_cat and advance else
-                                       f"?cat={nominee.category_id}" if nominee else "")
-            return redirect(dest)
+            return redirect(url_for("admin"))
 
         elif action == "clear_winner":
             category_id = int(request.form.get("category_id"))
-            next_cat = request.form.get("next_cat", "")
-            view = request.form.get("view", "")
             Nominee.query.filter_by(category_id=category_id).update({"is_winner": False})
             db.session.commit()
-            params = f"?cat={next_cat}" if next_cat else ""
-            if view:
-                params += ("&" if params else "?") + f"view={view}"
-            return redirect(url_for("admin") + params)
+            return redirect(url_for("admin"))
 
         elif action == "toggle_lock":
             s = db.session.get(Setting, "predictions_locked")
@@ -315,24 +305,9 @@ def admin():
 
     categories = Category.query.order_by(Category.display_order).all()
     locked = predictions_locked()
-
-    # Determine active category for live mode
-    cat_param = request.args.get("cat")
-    active_cat = None
-    if cat_param:
-        active_cat = next((c for c in categories if c.id == int(cat_param)), None)
-    if not active_cat:
-        # Default to first unpicked, or last category if all done
-        active_cat = next((c for c in categories if not c.winner), categories[-1])
-
-    # Next unpicked after active_cat (for auto-advance)
-    unpicked = [c for c in categories if not c.winner and c.id != active_cat.id]
-    next_unpicked = unpicked[0] if unpicked else None
-
     revealed = sum(1 for c in categories if c.winner)
     players = User.query.filter_by(is_admin=False).order_by(User.username).all()
     return render_template("admin.html", categories=categories, locked=locked,
-                           active_cat=active_cat, next_unpicked=next_unpicked,
                            revealed=revealed, players=players)
 
 

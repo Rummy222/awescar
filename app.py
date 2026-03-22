@@ -152,6 +152,22 @@ def predictions():
                            locked=locked)
 
 
+@app.route("/picks/<username>")
+def player_picks(username):
+    if not predictions_locked():
+        flash("Player picks are only visible once predictions are locked.", "warning")
+        return redirect(url_for("leaderboard"))
+
+    player = User.query.filter_by(username=username, is_admin=False).first_or_404()
+    categories = Category.query.order_by(Category.display_order).all()
+    user_preds = {p.category_id: p.nominee_id for p in player.predictions}
+    picked = len(user_preds)
+    total = len(categories)
+    return render_template("predictions.html", categories=categories,
+                           user_preds=user_preds, picked=picked, total=total,
+                           locked=True, page_user=player)
+
+
 @app.route("/leaderboard")
 def leaderboard():
     categories = Category.query.order_by(Category.display_order).all()

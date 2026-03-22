@@ -36,7 +36,13 @@
           {% endif %}
         </td>
         <td>
-          {{ entry.user.username }}
+          {% if predictions_locked %}
+            <a href="{{ url_for('player_picks', username=entry.user.username) }}" class="text-decoration-none">
+              {{ entry.user.username }}
+            </a>
+          {% else %}
+            {{ entry.user.username }}
+          {% endif %}
           {% if entry.user.id == current_user_id %}
             <span class="badge bg-secondary ms-1">you</span>
           {% endif %}

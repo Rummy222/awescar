@@ -2,10 +2,16 @@
 {% block title %}My Predictions — Awescar{% endblock %}
 
 {% block content %}
+{% set view_user = page_user if page_user is defined else current_user %}
 <div class="d-flex justify-content-between align-items-center mb-3">
   <div>
-    <h2 class="gold-text mb-0">My Predictions</h2>
-    <div class="text-muted small">Logged in as <strong>{{ current_user.username }}</strong></div>
+    {% if page_user is defined %}
+      <h2 class="gold-text mb-0">{{ view_user.username }}'s Picks</h2>
+      <div class="text-muted small"><a href="{{ url_for('leaderboard') }}" class="text-muted">← Leaderboard</a></div>
+    {% else %}
+      <h2 class="gold-text mb-0">My Predictions</h2>
+      <div class="text-muted small">Logged in as <strong>{{ view_user.username }}</strong></div>
+    {% endif %}
   </div>
   <span class="badge bg-secondary fs-6">{{ picked }} / {{ total }} picked</span>
 </div>

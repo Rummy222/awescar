@@ -16,12 +16,24 @@
 </div>
 {% endif %}
 
+<!-- Category dots -->
+<div class="cat-dots mb-4">
+  {% for cat in categories %}
+  {% set my_pick_id = user_preds.get(cat.id) %}
+  {% set winner_ids = cat.winners | map(attribute='id') | list %}
+  {% set is_correct = cat.winners | list | length > 0 and my_pick_id in winner_ids %}
+  <a href="#cat-{{ cat.id }}"
+     class="cat-dot {% if is_correct %}dot-done{% endif %}"
+     title="{{ cat.name }}{% if is_correct %} ✓{% endif %}"></a>
+  {% endfor %}
+</div>
+
 <form method="POST" action="{{ url_for('predictions') }}" id="predictions-form">
   {% for cat in categories %}
   {% set winner = cat.winner %}
   {% set winner_ids = cat.winners | map(attribute='id') | list %}
   {% set my_pick_id = user_preds.get(cat.id) %}
-  <div class="card mb-3 {% if winner %}card-revealed{% endif %}">
+  <div id="cat-{{ cat.id }}" class="card mb-3 {% if winner %}card-revealed{% endif %}">
     <div class="card-header d-flex justify-content-between align-items-center">
       <span class="fw-semibold">{{ cat.name }}</span>
       {% if cat.winners %}

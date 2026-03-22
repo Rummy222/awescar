@@ -14,8 +14,8 @@ class User(db.Model):
     def score(self, categories):
         correct = 0
         for pred in self.predictions:
-            winner = next((n for n in pred.category.nominees if n.is_winner), None)
-            if winner and winner.id == pred.nominee_id:
+            winner_ids = {n.id for n in pred.category.nominees if n.is_winner}
+            if pred.nominee_id in winner_ids:
                 correct += 1
         return correct
 

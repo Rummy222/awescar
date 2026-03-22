@@ -190,7 +190,10 @@ def leaderboard():
         })
     board.sort(key=lambda x: (-x["correct"], x["user"].username))
     for i, entry in enumerate(board):
-        entry["rank"] = i + 1
+        if i == 0 or entry["correct"] != board[i - 1]["correct"]:
+            entry["rank"] = i + 1
+        else:
+            entry["rank"] = board[i - 1]["rank"]
 
     user = current_user()
     return render_template("leaderboard.html", board=board, total=total,

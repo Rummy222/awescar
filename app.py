@@ -232,7 +232,19 @@ def summary():
                                                            category_id=cat.id).first()],
         })
 
-    return render_template("summary.html", summary_data=summary_data, users=users)
+    # Compute per-player scores for the bar chart
+    scores = {}
+    for u in users:
+        preds = {p.category_id: p.nominee_id for p in u.predictions}
+        scores[u.username] = sum(
+            1 for cat in categories
+            if cat.winners and preds.get(cat.id) in {w.id for w in cat.winners}
+        )
+    # Sort by score descending for the chart
+    scores = dict(sorted(scores.items(), key=lambda x: -x[1]))
+
+    return render_template("summary.html", summary_data=summary_data, users=users,
+                           scores=scores)
 
 
 @app.route("/films")

@@ -68,6 +68,7 @@
 <script>
   const players = {{ scores.keys() | list | tojson }};
   const correct = {{ scores.values() | list | tojson }};
+  const details = {{ details | tojson }};
   const maxScore = Math.max(...correct);
 
   new Chart(document.getElementById('scoresChart'), {
@@ -92,8 +93,16 @@
         legend: { display: false },
         tooltip: {
           callbacks: {
-            label: ctx => ` ${ctx.parsed.y} correct`
-          }
+            title: ctx => `${ctx[0].label} — ${ctx[0].parsed.y} correct`,
+            afterTitle: () => '─────────────────',
+            label: ctx => {
+              const cats = details[ctx.label];
+              return cats && cats.length ? cats.map(c => `✓ ${c}`) : ['No correct picks yet'];
+            },
+          },
+          displayColors: false,
+          padding: 10,
+          bodyFont: { size: 12 },
         }
       },
       scales: {

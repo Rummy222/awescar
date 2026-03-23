@@ -64,12 +64,103 @@
 
 {% block scripts %}
 {% if scores %}
+<style>
+  #chartTooltip {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    background: #1e2028;
+    border: 2px solid #2e3040;
+    border-radius: 10px;
+    padding: 12px 16px;
+    min-width: 230px;
+    max-width: 340px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.6);
+    opacity: 0;
+    transition: opacity 0.15s;
+    font-size: 13px;
+    color: #ddd;
+  }
+  #chartTooltip.mood-champion { border-color: #c9a84c; background: linear-gradient(135deg,#1e2028,#1e1a0a); }
+  #chartTooltip.mood-great    { border-color: #4caf82; }
+  #chartTooltip.mood-ok       { border-color: #4a90c9; }
+  #chartTooltip.mood-bad      { border-color: #c97a4c; }
+  #chartTooltip.mood-terrible { border-color: #c94c4c; }
+
+  .tt-header { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+  .tt-mood   { font-size: 18px; margin: 4px 0 8px; }
+  .tt-divider { border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 6px 0; }
+  .tt-list   { list-style: none; padding: 0; margin: 0; max-height: 180px; overflow-y: auto; }
+  .tt-list li { padding: 2px 0; font-size: 12px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+
+  @keyframes tt-bounce  { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+  @keyframes tt-shake   { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  @keyframes tt-wobble  { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(-3deg)} 75%{transform:rotate(3deg)} }
+  @keyframes tt-pulse   { 0%,100%{transform:scale(1)} 50%{transform:scale(1.04)} }
+  @keyframes tt-droop   { 0%,100%{transform:translateY(0) rotate(0deg)} 50%{transform:translateY(3px) rotate(-2deg)} }
+
+  .mood-champion #chartTooltip, #chartTooltip.mood-champion { animation: tt-pulse  0.7s infinite ease-in-out; }
+  #chartTooltip.mood-great    { animation: tt-bounce 0.6s infinite ease-in-out; }
+  #chartTooltip.mood-ok       { animation: tt-pulse  1.2s infinite ease-in-out; }
+  #chartTooltip.mood-bad      { animation: tt-wobble 0.5s infinite ease-in-out; }
+  #chartTooltip.mood-terrible { animation: tt-shake  0.35s infinite ease-in-out; }
+
+  .tt-emoji { display: inline-block; }
+  .mood-champion .tt-emoji { animation: tt-bounce 0.5s infinite ease-in-out; }
+  .mood-terrible .tt-emoji { animation: tt-shake  0.3s infinite ease-in-out; }
+</style>
+
+<div id="chartTooltip"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script>
   const players = {{ scores.keys() | list | tojson }};
   const correct = {{ scores.values() | list | tojson }};
   const details = {{ details | tojson }};
   const maxScore = Math.max(...correct);
+
+  function getMood(score) {
+    if (maxScore === 0) return { cls: 'mood-terrible', label: 'No winners yet!', emojis: '🎬' };
+    const ratio = score / maxScore;
+    if (score === maxScore) return { cls: 'mood-champion', label: '🏆 Leading the pack!',       emojis: '🏆 🎉 ✨ 🎊' };
+    if (ratio >= 0.75)      return { cls: 'mood-great',    label: 'Great picks! 🌟',             emojis: '🎉 🌟 👏' };
+    if (ratio >= 0.4)       return { cls: 'mood-ok',       label: 'Not bad, keep it up 👍',      emojis: '👍 🙂' };
+    if (score > 0)          return { cls: 'mood-bad',      label: 'Oof… rough night 😬',         emojis: '😬 🫣 📉' };
+    return                         { cls: 'mood-terrible', label: 'Zero correct?! Yikes 💀',     emojis: '💀 😭 🤦' };
+  }
+
+  function customTooltip({ chart, tooltip }) {
+    const el = document.getElementById('chartTooltip');
+    if (tooltip.opacity === 0) { el.style.opacity = '0'; return; }
+
+    const idx   = tooltip.dataPoints[0].dataIndex;
+    const name  = players[idx];
+    const score = correct[idx];
+    const cats  = details[name] || [];
+    const mood  = getMood(score);
+
+    el.className = mood.cls;
+
+    const listItems = cats.length
+      ? cats.map(c => `<li>✓ ${c}</li>`).join('')
+      : '<li style="color:#888">No correct picks yet</li>';
+
+    el.innerHTML = `
+      <div class="tt-header">${name} — ${score} correct</div>
+      <div class="tt-mood"><span class="tt-emoji">${mood.emojis}</span></div>
+      <div style="font-style:italic;color:#bbb;margin-bottom:6px">${mood.label}</div>
+      <hr class="tt-divider">
+      <ul class="tt-list">${listItems}</ul>
+    `;
+
+    const canvasRect = chart.canvas.getBoundingClientRect();
+    const x = canvasRect.left + tooltip.caretX + 12;
+    const y = canvasRect.top  + tooltip.caretY - 20;
+    const w = el.offsetWidth || 260;
+    el.style.left    = (x + w > window.innerWidth ? x - w - 24 : x) + 'px';
+    el.style.top     = Math.max(8, y) + 'px';
+    el.style.opacity = '1';
+  }
 
   new Chart(document.getElementById('scoresChart'), {
     type: 'bar',
@@ -91,19 +182,7 @@
       maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
-        tooltip: {
-          callbacks: {
-            title: ctx => `${ctx[0].label} — ${ctx[0].parsed.y} correct`,
-            afterTitle: () => '─────────────────',
-            label: ctx => {
-              const cats = details[ctx.label];
-              return cats && cats.length ? cats.map(c => `✓ ${c}`) : ['No correct picks yet'];
-            },
-          },
-          displayColors: false,
-          padding: 10,
-          bodyFont: { size: 12 },
-        }
+        tooltip: { enabled: false, external: customTooltip }
       },
       scales: {
         x: {

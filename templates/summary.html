@@ -11,7 +11,7 @@
 
 {% if scores %}
 <div class="card mb-4 p-3">
-  <canvas id="scoresChart"></canvas>
+  <canvas id="scoresChart" style="max-height:200px"></canvas>
 </div>
 {% endif %}
 
@@ -87,6 +87,7 @@
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
         tooltip: {

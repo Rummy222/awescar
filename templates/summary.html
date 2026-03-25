@@ -108,6 +108,11 @@
   .tt-emoji { display: inline-block; }
   .mood-champion .tt-emoji { animation: tt-bounce 0.5s infinite ease-in-out; }
   .mood-terrible .tt-emoji { animation: tt-shake  0.3s infinite ease-in-out; }
+
+  @keyframes chomp-float {
+    0%   { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-40px) scale(1.4); }
+  }
 </style>
 
 <div id="chartTooltip"></div>
@@ -162,7 +167,84 @@
     el.style.opacity = '1';
   }
 
-  new Chart(document.getElementById('scoresChart'), {
+  function spawnChomp(text, x, y) {
+    const el = document.createElement('div');
+    el.textContent = text;
+    el.style.cssText = `position:fixed;left:${x}px;top:${y}px;font-size:22px;font-weight:700;
+      color:#ff6b6b;pointer-events:none;z-index:10001;
+      animation:chomp-float 0.7s ease-out forwards;`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 700);
+  }
+
+  function startEatingAnimation(eaterIdx) {
+    if (scoreChart._eating) return;
+    scoreChart._eating = true;
+    document.getElementById('chartTooltip').style.opacity = '0';
+
+    const canvas  = scoreChart.canvas;
+    const rect    = canvas.getBoundingClientRect();
+    const meta    = scoreChart.getDatasetMeta(0);
+    const chartBottom = rect.top + canvas.clientHeight - 10;
+
+    const monster = document.createElement('div');
+    monster.style.cssText = `position:fixed;font-size:38px;z-index:10000;
+      pointer-events:none;transition:left 0.45s cubic-bezier(0.68,-0.55,0.27,1.55),top 0.3s ease;`;
+    monster.textContent = '👾';
+    document.body.appendChild(monster);
+
+    const startX = rect.left + meta.data[eaterIdx].x - 19;
+    monster.style.left = startX + 'px';
+    monster.style.top  = chartBottom + 'px';
+
+    // Targets sorted by distance from eater (nearest first)
+    const targets = players.map((_, i) => i)
+      .filter(i => i !== eaterIdx && scoreChart.data.datasets[0].data[i] > 0)
+      .sort((a, b) => Math.abs(meta.data[a].x - meta.data[eaterIdx].x)
+                    - Math.abs(meta.data[b].x - meta.data[eaterIdx].x));
+
+    let i = 0;
+    function eatNext() {
+      if (i >= targets.length) {
+        monster.textContent = '🤤';
+        spawnChomp('BURP! 💨', rect.left + meta.data[eaterIdx].x - 10, chartBottom - 40);
+        setTimeout(() => { monster.remove(); scoreChart._eating = false; }, 2000);
+        return;
+      }
+      const tIdx = targets[i];
+      const tBar = meta.data[tIdx];
+      monster.textContent = '👾';
+      monster.style.left = (rect.left + tBar.x - 19) + 'px';
+      monster.style.top  = (rect.top  + tBar.y - 19) + 'px';
+
+      setTimeout(() => {
+        monster.textContent = '😮';
+        spawnChomp('CHOMP!', rect.left + tBar.x - 20, rect.top + tBar.y - 40);
+
+        // Shrink bar to 0 over ~300ms
+        const startVal = scoreChart.data.datasets[0].data[tIdx];
+        const steps = 12, interval = 25;
+        let step = 0;
+        const shrink = setInterval(() => {
+          step++;
+          scoreChart.data.datasets[0].data[tIdx] = startVal * Math.max(0, 1 - step / steps);
+          scoreChart.update('none');
+          if (step >= steps) {
+            clearInterval(shrink);
+            scoreChart.data.datasets[0].data[tIdx] = 0;
+            scoreChart.update('none');
+            monster.textContent = '😋';
+            i++;
+            setTimeout(eatNext, 280);
+          }
+        }, interval);
+      }, 480);
+    }
+
+    setTimeout(eatNext, 200);
+  }
+
+  const scoreChart = new Chart(document.getElementById('scoresChart'), {
     type: 'bar',
     data: {
       labels: players,
@@ -180,6 +262,15 @@
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      onClick(event, elements) {
+        if (!elements.length) return;
+        const idx   = elements[0].index;
+        const score = scoreChart.data.datasets[0].data[idx];
+        const mood  = getMood(score);
+        if (mood.cls === 'mood-bad' || mood.cls === 'mood-terrible') {
+          startEatingAnimation(idx);
+        }
+      },
       plugins: {
         legend: { display: false },
         tooltip: { enabled: false, external: customTooltip }
